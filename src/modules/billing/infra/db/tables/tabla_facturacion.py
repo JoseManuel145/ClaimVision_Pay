@@ -32,7 +32,7 @@ class FacturacionTable(Base):
     metodo_pago = Column(String, nullable=True)
     gateway = Column(String, nullable=False, default="conekta")
     gateway_transaccion_id = Column(String, nullable=True)
-    metadata = Column(JSONB, nullable=True)
+    datos_adicionales = Column("metadata", JSONB, nullable=True)
     version = Column(Integer, nullable=False, default=1)
     created_at = Column(DateTime(timezone=True), nullable=False)
     updated_at = Column(DateTime(timezone=True), nullable=False)

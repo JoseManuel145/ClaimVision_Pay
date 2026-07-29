@@ -30,7 +30,7 @@ class RepositorioFacturacion(FacturacionRepositoryPort):
             metodo_pago=facturacion.metodo_pago,
             gateway=facturacion.gateway,
             gateway_transaccion_id=facturacion.gateway_transaccion_id,
-            metadata=facturacion.metadata,
+            datos_adicionales=facturacion.metadata,
             version=1,
             created_at=now,
             updated_at=now,
@@ -82,7 +82,7 @@ class RepositorioFacturacion(FacturacionRepositoryPort):
         record.estatus_pago = facturacion.estatus_pago
         record.metodo_pago = facturacion.metodo_pago
         record.gateway_transaccion_id = facturacion.gateway_transaccion_id
-        record.metadata = facturacion.metadata
+        record.datos_adicionales = facturacion.metadata
         record.updated_at = datetime.now(timezone.utc)
         record.version += 1
 
@@ -104,7 +104,7 @@ class RepositorioFacturacion(FacturacionRepositoryPort):
             metodo_pago=record.metodo_pago,
             gateway=record.gateway,
             gateway_transaccion_id=record.gateway_transaccion_id,
-            metadata=record.metadata,
+            metadata=record.datos_adicionales,
             version=record.version,
             created_at=record.created_at,
             updated_at=record.updated_at,
