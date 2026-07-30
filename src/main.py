@@ -15,6 +15,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="ClaimVision_Pay",
     version="1.0.0",
+    docs_url="/pay/docs",
+    redoc_url="/pay/redoc",
+    openapi_url="/pay/openapi.json",
     lifespan=lifespan,
 )
 
