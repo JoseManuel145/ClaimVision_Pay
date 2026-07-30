@@ -13,8 +13,17 @@ class AdaptadorConekta:
         self.api_key = settings.CONEKTA_API_KEY
         self.public_key = settings.CONEKTA_PUBLIC_KEY
 
+    def _map_metodo_pago(self, metodo_pago: str) -> list[str]:
+        mapping = {
+            "card": ["card"],
+            "cash": ["cash"],
+            "bank_transfer": ["bank_transfer"],
+            "all": ["card", "cash", "bank_transfer"],
+        }
+        return mapping.get(metodo_pago, ["card", "cash", "bank_transfer"])
+
     async def create_checkout(
-        self, aseguradora_id: str, plan: str, monto: Decimal, facturacion_id: str
+        self, aseguradora_id: str, plan: str, monto: Decimal, facturacion_id: str, metodo_pago: str = "all"
     ) -> dict[str, Any]:
         centavos = int(monto * 100)
         payload = {
@@ -23,6 +32,7 @@ class AdaptadorConekta:
             "recurrent": False,
             "amount": centavos,
             "currency": "MXN",
+            "allowed_payment_methods": self._map_metodo_pago(metodo_pago),
             "metadata": {
                 "aseguradora_id": aseguradora_id,
                 "facturacion_id": facturacion_id,

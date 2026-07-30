@@ -1,9 +1,19 @@
+from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 
 from src.modules.billing.domain.models import Facturacion, PRECIOS_PLANES, PERIODOS_PLANES
 from src.modules.billing.domain.ports import FacturacionRepositoryPort, ConektaPort
 from src.modules.billing.domain.exceptions import PlanInvalidoError, CheckoutFallidoError
+
+
+@dataclass
+class CheckoutResult:
+    facturacion_id: str
+    checkout_url: str
+    monto: str
+    plan: str
+    metodo_pago: str
 
 
 class CrearCheckout:
@@ -15,7 +25,7 @@ class CrearCheckout:
         self.facturacion_repo = facturacion_repo
         self.conekta_port = conekta_port
 
-    async def execute(self, aseguradora_id: str, plan: str) -> dict:
+    async def execute(self, aseguradora_id: str, plan: str, metodo_pago: str = "all") -> CheckoutResult:
         monto = PRECIOS_PLANES.get(plan)
         if monto is None:
             raise PlanInvalidoError(plan)
@@ -45,13 +55,15 @@ class CrearCheckout:
                 plan=plan,
                 monto=monto,
                 facturacion_id=facturacion_id,
+                metodo_pago=metodo_pago,
             )
         except Exception as e:
             raise CheckoutFallidoError(str(e))
 
-        return {
-            "facturacion_id": facturacion_id,
-            "checkout_url": checkout["checkout_url"],
-            "monto": str(monto),
-            "plan": plan,
-        }
+        return CheckoutResult(
+            facturacion_id=facturacion_id,
+            checkout_url=checkout["checkout_url"],
+            monto=str(monto),
+            plan=plan,
+            metodo_pago=metodo_pago,
+        )

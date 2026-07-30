@@ -24,7 +24,7 @@ class FacturacionRepositoryPort(ABC):
 class ConektaPort(ABC):
     @abstractmethod
     async def create_checkout(
-        self, aseguradora_id: str, plan: str, monto: Decimal, facturacion_id: str
+        self, aseguradora_id: str, plan: str, monto: Decimal, facturacion_id: str, metodo_pago: str = "all"
     ) -> dict[str, Any]: ...
 
     @abstractmethod

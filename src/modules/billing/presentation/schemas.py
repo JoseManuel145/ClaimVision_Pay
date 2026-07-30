@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict
 class CheckoutCreateDTO(BaseModel):
     aseguradora_id: str
     plan_suscripcion: str
+    metodo_pago: str = "all"
 
 
 class CheckoutResponseDTO(BaseModel):
@@ -17,6 +18,7 @@ class CheckoutResponseDTO(BaseModel):
     checkout_url: str
     monto: str
     plan: str
+    metodo_pago: str
 
 
 class FacturacionDTO(BaseModel):

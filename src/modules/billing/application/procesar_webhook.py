@@ -1,9 +1,20 @@
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Optional
 
 from src.modules.billing.domain.models import LIMITES_PLANES
 from src.modules.billing.domain.ports import FacturacionRepositoryPort, ConektaPort
 from src.modules.billing.domain.exceptions import FacturacionNoEncontradaError
+
+
+@dataclass
+class WebhookResult:
+    status: str
+    evento: Optional[str] = None
+    aseguradora_id: Optional[str] = None
+    plan: Optional[str] = None
+    limite_peritajes_mes: Optional[int] = None
+    reason: Optional[str] = None
 
 
 class ProcesarWebhook:
@@ -15,13 +26,13 @@ class ProcesarWebhook:
         self.facturacion_repo = facturacion_repo
         self.conekta_port = conekta_port
 
-    async def execute(self, payload: dict[str, Any]) -> dict:
+    async def execute(self, payload: dict[str, Any]) -> WebhookResult:
         evento = await self.conekta_port.procesar_evento(payload)
 
         if evento["evento"] == "pago_completado":
             facturacion_id = evento.get("facturacion_id")
             if not facturacion_id:
-                return {"status": "ignored", "reason": "sin facturacion_id"}
+                return WebhookResult(status="ignored", reason="sin facturacion_id")
 
             facturacion = await self.facturacion_repo.get_by_id(facturacion_id)
             if not facturacion:
@@ -33,15 +44,15 @@ class ProcesarWebhook:
             facturacion.metodo_pago = evento.get("metodo_pago")
             await self.facturacion_repo.update(facturacion)
 
-            return {
-                "status": "ok",
-                "evento": "pago_completado",
-                "aseguradora_id": facturacion.aseguradora_id,
-                "plan": facturacion.plan_suscripcion,
-                "limite_peritajes_mes": LIMITES_PLANES.get(
+            return WebhookResult(
+                status="ok",
+                evento="pago_completado",
+                aseguradora_id=facturacion.aseguradora_id,
+                plan=facturacion.plan_suscripcion,
+                limite_peritajes_mes=LIMITES_PLANES.get(
                     facturacion.plan_suscripcion, 100
                 ),
-            }
+            )
 
         if evento["evento"] == "pago_fallido":
             facturacion_id = evento.get("facturacion_id")
@@ -51,6 +62,6 @@ class ProcesarWebhook:
                     facturacion.estatus_pago = "Fallido"
                     await self.facturacion_repo.update(facturacion)
 
-            return {"status": "ok", "evento": "pago_fallido"}
+            return WebhookResult(status="ok", evento="pago_fallido")
 
-        return {"status": "ignored", "evento": evento.get("tipo")}
+        return WebhookResult(status="ignored", evento=evento.get("tipo"))
