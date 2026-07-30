@@ -1,3 +1,5 @@
+import base64
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any
 
@@ -10,7 +12,7 @@ class AdaptadorConekta:
     BASE_URL = "https://api.conekta.io"
 
     def __init__(self):
-        self.api_key = settings.CONEKTA_API_KEY
+        self.api_key = base64.b64encode(f"{settings.CONEKTA_API_KEY}:".encode()).decode()
         self.public_key = settings.CONEKTA_PUBLIC_KEY
 
     def _map_metodo_pago(self, metodo_pago: str) -> list[str]:
@@ -26,17 +28,29 @@ class AdaptadorConekta:
         self, aseguradora_id: str, plan: str, monto: Decimal, facturacion_id: str, metodo_pago: str = "all"
     ) -> dict[str, Any]:
         centavos = int(monto * 100)
+        now = datetime.now(timezone.utc)
+        expires_at = int((now + timedelta(days=7)).timestamp())
         payload = {
+            "type": "PaymentLink",
             "name": f"Plan {plan} - ClaimVision",
-            "type": "Subscription",
             "recurrent": False,
-            "amount": centavos,
-            "currency": "MXN",
+            "expires_at": expires_at,
+            "needs_shipping_contact": False,
             "allowed_payment_methods": self._map_metodo_pago(metodo_pago),
-            "metadata": {
-                "aseguradora_id": aseguradora_id,
-                "facturacion_id": facturacion_id,
-                "plan": plan,
+            "order_template": {
+                "currency": "MXN",
+                "customer_info": {
+                    "name": "Cliente ClaimVision",
+                    "email": "cliente@claimvision.com",
+                    "phone": "+525500000000",
+                },
+                "line_items": [
+                    {
+                        "name": f"Plan {plan}",
+                        "unit_price": centavos,
+                        "quantity": 1,
+                    }
+                ],
             },
         }
         async with httpx.AsyncClient() as client:
@@ -46,6 +60,7 @@ class AdaptadorConekta:
                 headers={
                     "Authorization": f"Basic {self.api_key}",
                     "Content-Type": "application/json",
+                    "Accept": "application/vnd.conekta-v2.0.0+json",
                 },
                 timeout=30.0,
             )

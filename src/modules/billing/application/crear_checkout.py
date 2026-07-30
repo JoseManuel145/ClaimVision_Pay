@@ -44,6 +44,7 @@ class CrearCheckout:
             periodo_fin=now + timedelta(days=dias),
             fecha_expiracion=now + timedelta(days=dias),
             estatus_pago="Pendiente",
+            metodo_pago=metodo_pago,
             gateway="conekta",
         )
 
