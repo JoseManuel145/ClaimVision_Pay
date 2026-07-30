@@ -1,0 +1,490 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ClaimVision_Pay",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/pay/checkout": {
+      "post": {
+        "tags": [
+          "v1 · Pay"
+        ],
+        "summary": "Crear Checkout",
+        "operationId": "crear_checkout_api_v1_pay_checkout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutCreateDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pay/webhook": {
+      "post": {
+        "tags": [
+          "v1 · Pay"
+        ],
+        "summary": "Webhook",
+        "operationId": "webhook_api_v1_pay_webhook_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Payload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pay/historial/{aseguradora_id}": {
+      "get": {
+        "tags": [
+          "v1 · Pay"
+        ],
+        "summary": "Obtener Historial",
+        "operationId": "obtener_historial_api_v1_pay_historial__aseguradora_id__get",
+        "parameters": [
+          {
+            "name": "aseguradora_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Aseguradora Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistorialResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CheckoutCreateDTO": {
+        "properties": {
+          "aseguradora_id": {
+            "type": "string",
+            "title": "Aseguradora Id"
+          },
+          "plan_suscripcion": {
+            "type": "string",
+            "title": "Plan Suscripcion"
+          },
+          "metodo_pago": {
+            "type": "string",
+            "title": "Metodo Pago",
+            "default": "all"
+          }
+        },
+        "type": "object",
+        "required": [
+          "aseguradora_id",
+          "plan_suscripcion"
+        ],
+        "title": "CheckoutCreateDTO"
+      },
+      "CheckoutResponseDTO": {
+        "properties": {
+          "facturacion_id": {
+            "type": "string",
+            "title": "Facturacion Id"
+          },
+          "checkout_url": {
+            "type": "string",
+            "title": "Checkout Url"
+          },
+          "monto": {
+            "type": "string",
+            "title": "Monto"
+          },
+          "plan": {
+            "type": "string",
+            "title": "Plan"
+          },
+          "metodo_pago": {
+            "type": "string",
+            "title": "Metodo Pago"
+          }
+        },
+        "type": "object",
+        "required": [
+          "facturacion_id",
+          "checkout_url",
+          "monto",
+          "plan",
+          "metodo_pago"
+        ],
+        "title": "CheckoutResponseDTO"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HistorialItemDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "plan_suscripcion": {
+            "type": "string",
+            "title": "Plan Suscripcion"
+          },
+          "monto": {
+            "type": "string",
+            "title": "Monto"
+          },
+          "moneda": {
+            "type": "string",
+            "title": "Moneda"
+          },
+          "periodo_inicio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Periodo Inicio"
+          },
+          "periodo_fin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Periodo Fin"
+          },
+          "fecha_pago": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Pago"
+          },
+          "fecha_expiracion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Expiracion"
+          },
+          "estatus_pago": {
+            "type": "string",
+            "title": "Estatus Pago"
+          },
+          "metodo_pago": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metodo Pago"
+          },
+          "gateway": {
+            "type": "string",
+            "title": "Gateway"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "plan_suscripcion",
+          "monto",
+          "moneda",
+          "estatus_pago",
+          "gateway"
+        ],
+        "title": "HistorialItemDTO"
+      },
+      "HistorialResponseDTO": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/HistorialItemDTO"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ],
+        "title": "HistorialResponseDTO"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WebhookResponseDTO": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "evento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evento"
+          },
+          "aseguradora_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aseguradora Id"
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan"
+          },
+          "limite_peritajes_mes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limite Peritajes Mes"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "WebhookResponseDTO"
+      }
+    }
+  }
+}
