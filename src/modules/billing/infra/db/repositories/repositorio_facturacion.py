@@ -36,7 +36,7 @@ class RepositorioFacturacion(FacturacionRepositoryPort):
             updated_at=now,
         )
         self.session.add(record)
-        await self.session.flush()
+        await self.session.commit()
         return self._to_domain(record)
 
     async def get_by_id(self, id: str) -> Facturacion | None:
@@ -86,7 +86,7 @@ class RepositorioFacturacion(FacturacionRepositoryPort):
         record.updated_at = datetime.now(timezone.utc)
         record.version += 1
 
-        await self.session.flush()
+        await self.session.commit()
         return self._to_domain(record)
 
     def _to_domain(self, record: FacturacionTable) -> Facturacion:
